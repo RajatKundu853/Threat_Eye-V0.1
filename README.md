@@ -45,6 +45,12 @@ apt update && apt upgrade -y
 
 apt autoremove -y
 
+git clone https://github.com/RajatKundu853/Threat_Eye-V0.1
+
+cd Threat_Eye-V0.1
+
+chmod +x *
+
 ./setup.sh
 
 reboot (optional)
