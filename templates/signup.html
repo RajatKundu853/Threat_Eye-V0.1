@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat_Eye Sign-Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #0d0d0d;
+            background-image: radial-gradient(circle, rgba(0, 255, 255, 0.2) 10%, transparent 60%);
+            font-family: 'Orbitron', sans-serif;
+            color: #00ffff;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            width: 350px;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, cyan, blue, cyan);
+            z-index: -1;
+            filter: blur(15px);
+            border-radius: 12px;
+        }
+
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            background: transparent;
+            color: #0ff;
+            font-size: 14px;
+            outline: none;
+            text-align: center;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+        }
+
+        input::placeholder {
+            color: rgba(0, 255, 255, 0.5);
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 15px;
+            cursor: pointer;
+            color: #00ffff;
+        }
+
+        .btn {
+            padding: 12px;
+            width: 100%;
+            background: transparent;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .btn-secondary {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid #00ffff;
+        }
+
+        .btn-secondary:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Threat_Eye Glow Animation */
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #00ffff; }
+            50% { box-shadow: 0 0 20px #00ffff; }
+            100% { box-shadow: 0 0 5px #00ffff; }
+        }
+
+        .container, input, .btn {
+            animation: glow 2s infinite alternate;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='threateye.webp') }}" alt="Threat Eye Logo" class="logo">
+        </div>
+        <h2>Threat_Eye Sign-Up</h2>
+        <form method="POST" action="{{ url_for('signup') }}">
+
+            <div class="input-container">
+                <input type="text" id="username" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-container">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <span class="eye-icon" onclick="togglePassword('password', this)">👁️</span>
+            </div>
+            
+            <div class="input-container">
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                <span class="eye-icon" onclick="togglePassword('confirmPassword', this)">👁️</span>
+            </div>
+            <br>
+            <div class="checkbox-container">
+                <input type="checkbox" id="robotCheck" required>
+                <label for="robotCheck">I am not a robot</label>
+            </div>
+            <br>
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+        <button class="btn btn-secondary" onclick="location.href='{{ url_for('login') }}'">Log In</button>
+    </div>
+
+    <script>
+        function togglePassword(fieldId, icon) {
+            let field = document.getElementById(fieldId);
+            field.type = field.type === "password" ? "text" : "password";
+        }
+    </script>
+</body>
+</html>

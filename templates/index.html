@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat_Eye Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Threat_Eye Neon Theme */
+        body {
+            background: #0d0d0d;
+            color: #0ff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            text-shadow: 0px 0px 10px #0ff;
+        }
+
+        /* Glowing Borders */
+        .glow-box {
+            border: 2px solid #0ff;
+            box-shadow: 0 0 10px #0ff;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 80%;
+            border-radius: 10px;
+        }
+
+        /* Logout Button - Neon Glow */
+        .logout-container {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background-color: transparent;
+            color: #0ff;
+            border: 2px solid #0ff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-shadow: 0px 0px 5px #0ff;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #0ff;
+            color: #000;
+            box-shadow: 0px 0px 15px #0ff;
+        }
+
+        /* Threat_Eye List Style */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            text-shadow: 0px 0px 5px #0ff;
+        }
+
+        /* Alert Box */
+        #alertBox {
+            border: 2px solid red;
+            box-shadow: 0 0 15px red;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(255, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logout Button -->
+    <div class="logout-container">
+        <a href="{{ url_for('logout') }}">
+            <button class="logout-btn">Logout</button>
+        </a>
+    </div>
+
+    <!-- Threat_Eye Welcome Header -->
+    <h2>Welcome to the Threat_Eye Dashboard, {{ current_user.username }}!</h2>
+
+    <!-- Live Network Traffic Chart -->
+    <div class="glow-box">
+        <h2>Live Network Traffic</h2>
+        <canvas id="trafficChart"></canvas>
+    </div>
+
+    <script>
+        async function fetchLogs() {
+            const response = await fetch('/api/logs');
+            return await response.json();
+        }
+
+        async function updateChart() {
+            let logs = await fetchLogs();
+            let labels = logs.map(log => log.timestamp);
+            let dataPoints = logs.map(log => log.length);
+
+            trafficChart.data.labels = labels;
+            trafficChart.data.datasets[0].data = dataPoints;
+            trafficChart.update();
+        }
+
+        const ctx = document.getElementById('trafficChart').getContext('2d');
+        const trafficChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Packet Size',
+                    data: [],
+                    borderColor: '#0ff',
+                    borderWidth: 2
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        setInterval(updateChart, 5000);
+    </script>
+
+    <!-- Unauthorized IoT Devices -->
+    <div class="glow-box">
+        <h2>⚠️Unauthorized IoT Devices⚠️</h2>
+        <ul id="unauthorizedList"></ul>
+    </div>
+
+    <script>
+        async function fetchUnauthorized() {
+            const response = await fetch('/api/unauthorized');
+            const data = await response.json();
+            let list = document.getElementById("unauthorizedList");
+            list.innerHTML = "";
+            data.forEach(device => {
+                let macAddress = device.mac && device.mac !== "None" ? device.mac : "Unknown MAC";
+                list.innerHTML += `<li>⚠️ ${device.timestamp} - ${device.ip} (${device.mac})</li>`;
+            });
+        }
+        setInterval(fetchUnauthorized, 5000);
+    </script>
+
+    <!-- Detected MITM Attacks -->
+    <div class="glow-box">
+        <h2>⚠️Detected MITM Attacks⚠️</h2>
+        <ul id="mitmList"></ul>
+    </div>
+
+    <script>
+        async function fetchMITM() {
+            const response = await fetch('/api/mitm');
+            const data = await response.json();
+            let list = document.getElementById("mitmList");
+            list.innerHTML = "";
+            data.forEach(attack => {
+                list.innerHTML += `<li>💀 ${attack.timestamp} - ${attack.ip} (${attack.mac})</li>`;
+            });
+        }
+        setInterval(fetchMITM, 5000);
+    </script>
+
+    <!-- Live Security Alerts -->
+    <div class="glow-box">
+        <h2>🚨Live Security Alerts🚨</h2>
+        <div id="alertBox">
+            <ul id="alertsList"></ul>
+        </div>
+    </div>
+
+    <audio id="alertSound" src="/static/alert.mp3"></audio>
+
+    <script>
+        let lastAlertCount = 0;
+
+        async function fetchAlerts() {
+            const response = await fetch('/api/alerts');
+            const data = await response.json();
+            let list = document.getElementById("alertsList");
+            list.innerHTML = "";
+            
+            let newAlertCount = data.unauthorized_devices.length + data.mitm_attacks.length;
+            
+            data.unauthorized_devices.forEach(alert => {
+                list.innerHTML += `<li>🚨 Unauthorized Device: ${alert.ip} (${alert.mac}) - ${alert.timestamp}</li>`;
+            });
+
+            data.mitm_attacks.forEach(alert => {
+                list.innerHTML += `<li>⚠️ MITM Attack: ${alert.ip} (${alert.mac}) - ${alert.timestamp}</li>`;
+            });
+
+            if (newAlertCount > lastAlertCount) {
+                document.getElementById("alertSound").play();
+            }
+            
+            lastAlertCount = newAlertCount;
+        }
+        setInterval(fetchAlerts, 3000);
+    </script>
+
+</body>
+</html>
