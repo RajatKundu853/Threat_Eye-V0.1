@@ -3,8 +3,11 @@ Installation :
 1.sudo su
 2.apt update && apt upgrade -y
 3.apt autoremove -y
-4../setup.sh
-5.reboot  (optional)
+4.git clone https://github.com/RajatKundu853/Threat_Eye-V0.1
+5.cd Threat_Eye-V0.1
+6.chmod +x *
+7../setup.sh
+8.reboot  (optional)
 -------------------------------------------
 -------------------------------------------
 
